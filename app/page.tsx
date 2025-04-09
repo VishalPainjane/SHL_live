@@ -1,6 +1,6 @@
 'use client'
 
-import React from 'react';
+import React, { JSX } from 'react';
 import { useState, useEffect, KeyboardEvent, ChangeEvent, MouseEvent } from 'react';
 import { Search, Download, X, ChevronDown, ChevronUp, Loader, ExternalLink } from 'lucide-react';
 
@@ -31,7 +31,7 @@ interface SortConfig {
   direction: 'ascending' | 'descending';
 }
 
-export default function SearchApp(): any {
+export default function SearchApp(): JSX.Element {
   const [query, setQuery] = useState<string>('');
   const [results, setResults] = useState<ResultItem[]>([]);
   const [loading, setLoading] = useState<boolean>(false);
