@@ -46,7 +46,7 @@ export default function SearchApp(): JSX.Element {
     setError(null);
     
     try {
-      const response = await fetch('http://localhost:3000/api/recommend', {
+      const response = await fetch('https://test-kappa-dun-81.vercel.app/api/recommend', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -202,13 +202,13 @@ export default function SearchApp(): JSX.Element {
                 {sortedResults.map((item, index) => (
                   <React.Fragment key={index}>
                     <tr 
-                      className={bg-gray-800/30 hover:bg-gray-700/20 transition-colors cursor-pointer ${expandedRow === index ? 'bg-gray-700/40' : ''}}
+                      className={`bg-gray-800/30 hover:bg-gray-700/20 transition-colors cursor-pointer ${expandedRow === index ? 'bg-gray-700/40' : ''}`}
                       onClick={() => toggleRowExpansion(index)}
                     >
                       <td className="px-6 py-4 text-sm font-medium text-gray-200">{item.name}</td>
                       <td className="px-6 py-4 text-sm text-gray-300">{item.test_types || 'N/A'}</td>
                       <td className="px-6 py-4 text-sm text-gray-300">
-                        <span className={inline-flex px-3 py-1 text-xs font-medium rounded-full ${item.remote_testing === 'Yes' ? 'bg-green-900/30 text-green-200 border border-green-700/50' : 'bg-red-900/30 text-red-200 border border-red-700/50'}}>
+                        <span className={`inline-flex px-3 py-1 text-xs font-medium rounded-full ${item.remote_testing === 'Yes' ? 'bg-green-900/30 text-green-200 border border-green-700/50' : 'bg-red-900/30 text-red-200 border border-red-700/50'}`}>
                           {item.remote_testing || 'N/A'}
                         </span>
                       </td>
