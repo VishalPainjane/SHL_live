@@ -1,17 +1,45 @@
 'use client'
 
-import { useState, useEffect } from 'react';
+import React from 'react';
+import { useState, useEffect, KeyboardEvent, ChangeEvent, MouseEvent } from 'react';
 import { Search, Download, X, ChevronDown, ChevronUp, Loader, ExternalLink } from 'lucide-react';
 
-export default function SearchApp() {
-  const [query, setQuery] = useState('');
-  const [results, setResults] = useState([]);
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState(null);
-  const [expandedRow, setExpandedRow] = useState(null);
-  const [sortConfig, setSortConfig] = useState({ key: null, direction: 'ascending' });
+// Define types for result items
+interface DownloadItem {
+  title: string;
+  url: string;
+  language: string;
+}
 
-  const handleSearch = async () => {
+interface ResultItem {
+  name: string;
+  description?: string;
+  test_types?: string;
+  remote_testing?: string;
+  duration?: string;
+  job_levels?: string;
+  adaptive_irt?: string;
+  languages?: string;
+  url?: string;
+  downloads?: DownloadItem[];
+  [key: string]: any; // For dynamic sorting
+}
+
+// Define type for sort configuration
+interface SortConfig {
+  key: string | null;
+  direction: 'ascending' | 'descending';
+}
+
+export default function SearchApp(): any {
+  const [query, setQuery] = useState<string>('');
+  const [results, setResults] = useState<ResultItem[]>([]);
+  const [loading, setLoading] = useState<boolean>(false);
+  const [error, setError] = useState<string | null>(null);
+  const [expandedRow, setExpandedRow] = useState<number | null>(null);
+  const [sortConfig, setSortConfig] = useState<SortConfig>({ key: null, direction: 'ascending' });
+
+  const handleSearch = async (): Promise<void> => {
     if (!query.trim()) return;
     
     setLoading(true);
@@ -34,21 +62,21 @@ export default function SearchApp() {
       
       setResults(data.results || []);
     } catch (err) {
-      setError(err.message || 'An error occurred while fetching data');
+      setError(err instanceof Error ? err.message : 'An error occurred while fetching data');
       setResults([]);
     } finally {
       setLoading(false);
     }
   };
 
-  const handleKeyDown = (e) => {
+  const handleKeyDown = (e: KeyboardEvent<HTMLInputElement>): void => {
     if (e.key === 'Enter') {
       handleSearch();
     }
   };
 
-  const handleSort = (key) => {
-    let direction = 'ascending';
+  const handleSort = (key: string): void => {
+    let direction: 'ascending' | 'descending' = 'ascending';
     
     if (sortConfig.key === key) {
       direction = sortConfig.direction === 'ascending' ? 'descending' : 'ascending';
@@ -57,7 +85,7 @@ export default function SearchApp() {
     setSortConfig({ key, direction });
   };
 
-  const sortedResults = [...results].sort((a, b) => {
+  const sortedResults = [...results].sort((a: ResultItem, b: ResultItem) => {
     if (!sortConfig.key) return 0;
     
     const aValue = a[sortConfig.key] || '';
@@ -72,7 +100,7 @@ export default function SearchApp() {
     return 0;
   });
 
-  const toggleRowExpansion = (index) => {
+  const toggleRowExpansion = (index: number): void => {
     setExpandedRow(expandedRow === index ? null : index);
   };
 
@@ -91,7 +119,7 @@ export default function SearchApp() {
             <input
               type="text"
               value={query}
-              onChange={(e) => setQuery(e.target.value)}
+              onChange={(e: ChangeEvent<HTMLInputElement>) => setQuery(e.target.value)}
               onKeyDown={handleKeyDown}
               placeholder="Enter your search query..."
               className="bg-gray-800/70 backdrop-blur-sm text-gray-100 w-full pl-12 pr-12 py-4 rounded-xl border border-gray-700/50 focus:outline-none focus:ring-2 focus:border-transparent focus:ring-blue-500 shadow-md transition-all"
@@ -172,25 +200,24 @@ export default function SearchApp() {
               </thead>
               <tbody className="divide-y divide-gray-700/50">
                 {sortedResults.map((item, index) => (
-                  <>
+                  <React.Fragment key={index}>
                     <tr 
-                      key={index} 
-                      className={`bg-gray-800/30 hover:bg-gray-700/20 transition-colors cursor-pointer ${expandedRow === index ? 'bg-gray-700/40' : ''}`}
+                      className={bg-gray-800/30 hover:bg-gray-700/20 transition-colors cursor-pointer ${expandedRow === index ? 'bg-gray-700/40' : ''}}
                       onClick={() => toggleRowExpansion(index)}
                     >
                       <td className="px-6 py-4 text-sm font-medium text-gray-200">{item.name}</td>
                       <td className="px-6 py-4 text-sm text-gray-300">{item.test_types || 'N/A'}</td>
                       <td className="px-6 py-4 text-sm text-gray-300">
-                        <span className={`inline-flex px-3 py-1 text-xs font-medium rounded-full ${item.remote_testing === 'Yes' ? 'bg-green-900/30 text-green-200 border border-green-700/50' : 'bg-red-900/30 text-red-200 border border-red-700/50'}`}>
+                        <span className={inline-flex px-3 py-1 text-xs font-medium rounded-full ${item.remote_testing === 'Yes' ? 'bg-green-900/30 text-green-200 border border-green-700/50' : 'bg-red-900/30 text-red-200 border border-red-700/50'}}>
                           {item.remote_testing || 'N/A'}
                         </span>
                       </td>
                       <td className="px-6 py-4 text-sm text-gray-300">
                         <div className="flex gap-3">
                           <button 
-                            onClick={(e) => {
+                            onClick={(e: MouseEvent) => {
                               e.stopPropagation();
-                              window.open(item.url, '_blank');
+                              if (item.url) window.open(item.url, '_blank');
                             }}
                             className="flex items-center gap-1 text-blue-400 hover:text-blue-300 transition-colors"
                           >
@@ -198,7 +225,7 @@ export default function SearchApp() {
                             <span>Visit</span>
                           </button>
                           <button
-                            onClick={(e) => {
+                            onClick={(e: MouseEvent) => {
                               e.stopPropagation();
                               toggleRowExpansion(index);
                             }}
@@ -239,8 +266,6 @@ export default function SearchApp() {
                             </div>
                             
                             <div className="space-y-3">
-                              
-                              
                               {item.downloads && item.downloads.length > 0 && (
                                 <div>
                                   <h4 className="font-semibold text-blue-400 mb-2">Downloads</h4>
@@ -253,7 +278,7 @@ export default function SearchApp() {
                                           target="_blank" 
                                           rel="noopener noreferrer"
                                           className="text-sm text-blue-400 hover:text-blue-300 hover:underline transition-colors"
-                                          onClick={(e) => e.stopPropagation()}
+                                          onClick={(e: MouseEvent) => e.stopPropagation()}
                                         >
                                           {download.title} ({download.language})
                                         </a>
@@ -267,7 +292,7 @@ export default function SearchApp() {
                         </td>
                       </tr>
                     )}
-                  </>
+                  </React.Fragment>
                 ))}
               </tbody>
             </table>
